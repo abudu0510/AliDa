@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>来自你男朋友阿布的叮嘱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, 
+                #e0f7ff 0%,    /* 淡蓝色 */
+                #e8dfff 25%,   /* 淡紫色 */
+                #ffe6f2 50%,   /* 淡粉色 */
+                #d9e8ff 75%,   /* 另一种淡蓝色 */
+                #f0e6ff 100%   /* 淡紫色 */
+            );
+            background-size: 400% 400%;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 信封样式 */
+        .envelope-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 220px;
+            cursor: pointer;
+            z-index: 10001;
+        }
+        
+        @media (max-width: 768px) {
+            .envelope-container {
+                width: 260px;
+                height: 180px;
+            }
+        }
+        
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #ff6b8b;
+            border-radius: 5px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .envelope-heart {
+            position: absolute;
+            color: white;
+            opacity: 0.8;
+            z-index: 3;
+            animation: floatHeart 3s ease-in-out infinite;
+        }
+        
+        .heart-1 { top: 30%; left: 20%; font-size: 18px; animation-delay: 0s; }
+        .heart-2 { top: 45%; right: 25%; font-size: 14px; animation-delay: 0.5s; }
+        .heart-3 { top: 60%; left: 30%; font-size: 16px; animation-delay: 1s; }
+        
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+            50% { transform: translateY(-10px) rotate(5deg); opacity: 1; }
+        }
+        
+        .envelope-front {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-bottom: 220px solid #ff8da1;
+            border-radius: 5px;
+            z-index: 3;
+            transform-origin: top;
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        
+        @media (max-width: 768px) {
+            .envelope-front {
+                border-left: 130px solid transparent;
+                border-right: 130px solid transparent;
+                border-bottom: 180px solid #ff8da1;
+            }
+        }
+        
+        .envelope-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff6b8b;
+            border-radius: 5px;
+            z-index: 2;
+        }
+        
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: #ff5277;
+            z-index: 4;
+            transform-origin: bottom;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .envelope-opening-message {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+            z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .envelope-opening-message {
+                font-size: 16px;
+                bottom: -50px;
+            }
+        }
+        
+        .envelope-sender {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 3;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .envelope-opened .envelope-flap { transform: rotateX(180deg); }
+        .envelope-opened .envelope-front { transform: rotateX(180deg); }
+        
+        .letter {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background-color: white;
+            top: 5%;
+            left: 5%;
+            border-radius: 5px;
+            z-index: 1;
+            transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s;
+            transform: translateY(0);
+        }
+        
+        .envelope-opened .letter { transform: translateY(-85%); }
+        
+        /* 爱心雨样式 */
+        .heart-rain {
+            position: absolute;
+            color: #ff6b8b;
+            opacity: 0.8;
+            top: -50px;
+            z-index: 100;
+            animation: fall linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 弹窗样式 - 从小到大、从透明到不透明 */
+        .popup {
+            position: absolute;
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 280px;
+            opacity: 0; /* 初始透明 */
+            transform: scale(0.5); /* 初始缩小 */
+            z-index: 101;
+            border-left: 5px solid;
+        }
+        
+        .popup.show {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 1s ease-out, 
+                        transform 1s ease-out;
+        }
+        
+        .popup.fade-out {
+            opacity: 0 !important;
+            transform: scale(0.8) !important;
+            transition: opacity 2s ease-out, transform 2s ease-out;
+        }
+        
+        @media (max-width: 768px) {
+            .popup {
+                max-width: 200px;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .popup {
+                max-width: 160px;
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
+        
+        .popup-content {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .popup-icon {
+            font-size: 20px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        /* 查看最后祝福按钮 - 10秒后显示 */
+        .view-more-btn {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff6b8b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.8s ease;
+        }
+        
+        .view-more-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .view-more-btn:hover {
+            background-color: #ff5277;
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 最终消息 */
+        .final-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            padding: 40px 60px;
+            border-radius: 25px;
+            font-size: 32px;
+            color: white;
+            z-index: 10000;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            opacity: 0;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .final-message {
+                padding: 30px 40px;
+                font-size: 24px;
+                width: 90%;
+                max-width: 320px;
+            }
+        }
+        
+        .final-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .final-text {
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+        
+        .confirm-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff6b6b;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tap-indicator {
+            position: absolute;
+            bottom: -90px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #555;
+            font-size: 14px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) translateX(-50%); opacity: 1; }
+            50% { transform: scale(1.05) translateX(-50%); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div class="envelope-container" id="envelopeContainer">
+        <div class="envelope" id="envelope">
+            <div class="envelope-heart heart-1">💖</div>
+            <div class="envelope-heart heart-2">💕</div>
+            <div class="envelope-heart heart-3">💓</div>
+            
+            <div class="envelope-back"></div>
+            <div class="envelope-front"></div>
+            <div class="envelope-flap"></div>
+            <div class="envelope-sender">给我的公主💌</div>
+            <div class="letter"></div>
+        </div>
+        <div class="envelope-opening-message">来自你男朋友阿布送给公主的惊喜</div>
+        <div class="tap-indicator">点击打开信封 ✨</div>
+    </div>
+    
+    <button class="view-more-btn" id="viewMoreBtn">查看最后的祝福 💌</button>
+    
+    <div class="final-message" id="finalMessage">
+        <span class="final-icon">🌅</span>
+        <div class="final-text">公主💝 所有美好都在前方等你</div>
+        <button class="confirm-btn" id="confirmBtn">收到鼓励</button>
+    </div>
+    
+    <script>
+        // 确保DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 缓存DOM元素引用（解决点击无反应的核心问题）
+            const envelopeContainer = document.getElementById('envelopeContainer');
+            const envelope = document.getElementById('envelope');
+            const finalMessage = document.getElementById('finalMessage');
+            const viewMoreBtn = document.getElementById('viewMoreBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            const messages = [
+                "公主💝 专升本的路上你从不孤单，坚持就是胜利",
+                "距离挡不住爱，公主💝 异地恋的每一刻都是考验也是成长",
+                "公主💝 再忙也要记得按时吃饭，照顾好自己才是最重要的",
+                "公主💝 今天的努力学习，都是为了明天更美的绽放",
+                "思念也是一种力量，公主💝 异地恋让你们更懂得珍惜彼此",
+                "公主💝 别熬夜啦，好好休息才能有精神面对每一天的挑战",
+                "专升本的难度只是暂时的，公主💝 你的潜力无限大",
+                "公主💝 即使相隔千里，心在一起就是温暖",
+                "公主💝 记得每天给自己一个微笑，你值得所有美好",
+                "每一次刷题都是进步，公主💝 上岸就在不远处等你",
+                "公主💝 异地恋的考验会让你们的感情更加坚固",
+                "公主💝 天气变化记得添衣，照顾好自己才能让爱你的人放心",
+                "公主💝 相信自己的努力，专升本一定能成功",
+                "短暂的分离是为了更好的重逢，公主💝 异地恋加油",
+                "公主💝 再累也要记得放松，身体健康比什么都重要",
+                "公主💝 专升本的路上，每一步都算数",
+                "公主💝 异地恋让你们学会了更深的信任",
+                "公主💝 好好吃饭，好好睡觉，你是最棒的自己",
+                "公主💝 错题本越来越厚，成功就越来越近了",
+                "每天的一句晚安，都是异地恋的小确幸，公主💝",
+                "公主💝 照顾好自己，才能有更多精力追逐梦想",
+                "公主💝 专升本的终点就在眼前，再坚持一下",
+                "距离产生美，公主💝 异地恋让你们学会了更深的信任",
+                "再忙也要喝够水，公主💝 身体是奋斗的本钱",
+                "公主💝 模拟考试的分数不重要，重要的是你一直在进步",
+                "公主💝 距离不会冲淡思念，反而让爱更清晰",
+                "公主💝 记得偶尔给自己一点奖励，你真的很努力了",
+                "异地恋的每一次视频通话都值得珍惜，公主💝",
+                "公主💝 天冷了多穿点，别让自己生病呀",
+                "公主💝 你的坚持和努力，一定会有回报的",
+                "公主💝 异地恋虽然辛苦，但未来的幸福值得期待",
+                "公主💝 再忙也要抽出时间散步，放松心情才能高效学习",
+                "专升本的成功会是你人生中闪亮的一笔，公主💝",
+                "公主💝 距离是暂时的，爱才是永恒的",
+                "公主💝 照顾好自己，就是对爱你的人最好的回应",
+                "公主💝 每天进步一点点，专升本一定能上岸",
+                "异地恋让我们更懂得沟通的重要性，公主💝",
+                "公主💝 记得吃早餐，开启活力满满的一天",
+                "公主💝 相信自己，你比想象中更强大",
+                "每一次思念都是动力，公主💝 为了重逢更要努力",
+                "公主💝 别给自己太大压力，照顾好情绪也很重要"
+            ];
+            
+            // 变量初始化
+            let popupCounter = 1;
+            let totalPopups = 0;
+            let displayedMessages = [];
+            let displayedUnique = new Set();
+            let maxPopups = 20;
+            let isCreating = false;
+            let currentSpeed = 500;
+            let popupInterval;
+            let messageIndex = 0;
+            const totalUniqueMessages = messages.length;
+            const fadeThreshold = Math.ceil(totalUniqueMessages * 0.75);
+            
+            // 信封点击事件（修复无反应问题）
+            envelopeContainer.addEventListener('click', function() {
+                if (!envelope.classList.contains('envelope-opened')) {
+                    // 标记信封为已打开
+                    envelope.classList.add('envelope-opened');
+                    
+                    // 隐藏提示文字
+                    document.querySelector('.envelope-opening-message').style.opacity = 0;
+                    document.querySelector('.tap-indicator').style.opacity = 0;
+                    
+                    // 信封打开动画完成后消失
+                    setTimeout(() => {
+                        envelopeContainer.style.opacity = 0;
+                        envelopeContainer.style.transform = 'translate(-50%, -50%) scale(0.8)';
+                        envelopeContainer.style.pointerEvents = 'none';
+                        
+                        // 完全消失后开始显示内容
+                        setTimeout(() => {
+                            envelopeContainer.style.display = 'none';
+                            isCreating = true;
+                            startPopupLoop();
+                            startHeartRainLoop();
+                            
+                            // 10秒后显示查看最后祝福按钮
+                            setTimeout(() => {
+                                viewMoreBtn.classList.add('show');
+                            }, 10000);
+                        }, 500);
+                    }, 1500);
+                }
+            });
+            
+            // 爱心雨效果
+            function createHeart() {
+                if (!isCreating) return;
+                
+                const hearts = ['💖', '💕', '💓', '💗', '💘', '💝', '💞', '💟'];
+                const heart = document.createElement('div');
+                heart.className = 'heart-rain';
+                
+                const size = Math.random() * 30 + 10;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 10 + 5;
+                const delay = Math.random() * 2;
+                const heartChar = hearts[Math.floor(Math.random() * hearts.length)];
+                
+                heart.style.fontSize = `${size}px`;
+                heart.style.left = `${left}%`;
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.animationDelay = `${delay}s`;
+                heart.textContent = heartChar;
+                
+                document.body.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                    if (isCreating) {
+                        setTimeout(createHeart, Math.random() * 500 + 200);
+                    }
+                }, (duration + delay) * 1000);
+            }
+            
+            // 启动爱心雨
+            function startHeartRainLoop() {
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(createHeart, i * 200);
+                }
+            }
+            
+            // 获取下一条消息（循环显示）
+            function getNextMessage() {
+                const message = messages[messageIndex];
+                displayedUnique.add(message);
+                messageIndex = (messageIndex + 1) % messages.length;
+                return message;
+            }
+            
+            // 创建单个弹窗（从小到大、从透明到不透明）
+            function createPopup() {
+                if (!isCreating || totalPopups >= maxPopups) return;
+                
+                const message = getNextMessage();
+                const popup = document.createElement('div');
+                popup.className = 'popup';
+                popup.dataset.id = Date.now();
+                popup.style.zIndex = popupCounter++;
+                
+                // 计算弹窗位置
+                const getPopupSize = () => {
+                    if (window.innerWidth <= 480) return { width: 160, height: 80, margin: 10 };
+                    if (window.innerWidth <= 768) return { width: 200, height: 90, margin: 15 };
+                    return { width: 280, height: 100, margin: 20 };
+                };
+                
+                const size = getPopupSize();
+                const maxX = window.innerWidth - size.width - size.margin;
+                const maxY = window.innerHeight - size.height - size.margin;
+                const randomX = Math.floor(Math.random() * maxX) + size.margin;
+                const randomY = Math.floor(Math.random() * maxY) + size.margin;
+                
+                popup.style.left = `${randomX}px`;
+                popup.style.top = `${randomY}px`;
+                
+                // 随机边框颜色
+                const colors = ['#ff9a9e', '#a1c4fd', '#ffd1ff', '#84fab0', '#fbc2eb', '#8fd3f4'];
+                popup.style.borderLeftColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 随机图标
+                const icons = ['💝', '✨', '🌸', '🌟', '💫', '💌', '🌷', '🌼', '💕', '🌺'];
+                const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                
+                // 构建弹窗内容
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'popup-content';
+                contentDiv.innerHTML = `<span class="popup-icon">${randomIcon}</span><span>${message}</span>`;
+                popup.appendChild(contentDiv);
+                
+                document.body.appendChild(popup);
+                totalPopups++;
+                displayedMessages.push({
+                    id: popup.dataset.id,
+                    element: popup,
+                    message: message
+                });
+                
+                // 触发显示动画（从小到大、从透明到不透明）
+                setTimeout(() => popup.classList.add('show'), 50);
+                
+                // 弹窗生命周期
+                const popupLifetime = 8000 + Math.random() * 4000;
+                
+                // 检查是否需要淡化旧弹窗
+                if (isFadingPhase()) {
+                    startFadingOldPopups();
+                }
+                
+                // 弹窗消失处理
+                setTimeout(() => {
+                    popup.classList.add('fade-out');
+                    setTimeout(() => {
+                        popup.remove();
+                        totalPopups--;
+                        displayedMessages = displayedMessages.filter(item => item.id !== popup.dataset.id);
+                    }, 2000);
+                }, popupLifetime);
+            }
+            
+            // 判断是否进入淡化阶段
+            function isFadingPhase() {
+                return displayedUnique.size >= fadeThreshold;
+            }
+            
+            // 淡化旧弹窗
+            function startFadingOldPopups() {
+                const popupsToFade = Math.max(1, Math.floor(displayedMessages.length / 4));
+                if (popupsToFade > 0 && displayedMessages.length > maxPopups * 0.7) {
+                    const sortedPopups = [...displayedMessages].sort((a, b) => a.id - b.id);
+                    const popupIds = sortedPopups.slice(0, popupsToFade).map(item => item.id);
+                    
+                    popupIds.forEach((id, index) => {
+                        const popup = document.querySelector(`.popup[data-id="${id}"]`);
+                        if (popup && !popup.classList.contains('fade-out')) {
+                            setTimeout(() => {
+                                popup.classList.add('fade-out');
+                                setTimeout(() => {
+                                    popup.remove();
+                                    totalPopups--;
+                                    displayedMessages = displayedMessages.filter(item => item.id !== id);
+                                }, 2000);
+                            }, index * 1500);
+                        }
+                    });
+                }
+            }
+            
+            // 启动弹窗循环（持续重复直到点击按钮）
+            function startPopupLoop() {
+                // 初始创建一批弹窗
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(createPopup, i * 300);
+                }
+                
+                // 持续创建新弹窗
+                function maintainPopups() {
+                    if (!isCreating) return;
+                    
+                    popupInterval = setInterval(() => {
+                        // 按钮显示后仍继续创建弹窗
+                        if (totalPopups < maxPopups * 0.9) {
+                            createPopup();
+                        }
+                    }, currentSpeed);
+                }
+                
+                maintainPopups();
+            }
+            
+            // 显示最终消息
+            function showFinalMessage() {
+                viewMoreBtn.classList.remove('show');
+                isCreating = false;
+                clearInterval(popupInterval);
+                
+                // 所有弹窗缓慢消失
+                document.querySelectorAll('.popup').forEach((popup, index) => {
+                    setTimeout(() => {
+                        popup.classList.add('fade-out');
+                        setTimeout(() => popup.remove(), 2000);
+                    }, index * 400);
+                });
+                
+                // 爱心雨加速消失
+                document.querySelectorAll('.heart-rain').forEach(heart => {
+                    heart.style.animationDuration = '1.5s';
+                });
+                
+                // 显示最终消息
+                finalMessage.style.display = 'block';
+                setTimeout(() => {
+                    finalMessage.style.opacity = '1';
+                    finalMessage.style.transition = 'all 1.5s ease';
+                }, 10);
+            }
+            
+            // 绑定事件
+            viewMoreBtn.addEventListener('click', showFinalMessage);
+            confirmBtn.addEventListener('click', function() {
+                alert('公主💝 收到你的确认啦！爱你💝！公主💝————来自阿布');
+            });
+            
+            // 页面卸载时清理
+            window.addEventListener('beforeunload', function() {
+                isCreating = false;
+            });
+        });
+    </script>
+</body>
+</html>
